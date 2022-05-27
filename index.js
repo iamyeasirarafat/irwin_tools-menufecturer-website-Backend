@@ -14,6 +14,26 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
+// varify jwt token
+const varifyJwt = (req, res, next) => {
+    const header = req.headers.authorization;
+    if(header){
+        const token = header.split(' ')[1];
+        jwt.verify(token, process.env.jwt_secret, function(err, decoded) {
+            if(err){
+                res.status(403).send('forbidden')
+            }else{
+                req.decoded = decoded;
+                next()
+            }
+          })
+    }else{
+        res.status(401).send('Unauthorized')
+    }
+
+}
+
  //mongoDb Database connection
  const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.PASS_DB}@cluster0.zzc8v.mongodb.net/?retryWrites=true&w=majority`;
  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -22,6 +42,7 @@ app.use(express.json());
          await client.connect();
          const productsDb = client.db("irwinTools").collection('productsDb')
          const usersDb = client.db("irwinTools").collection('usersDb')
+         const ordersDb = client.db("irwinTools").collection('ordersDb')
 
 
          //login and sign jwt token
@@ -47,13 +68,18 @@ app.use(express.json());
             res.send(products)
         })
         // get a single product
-        app.get('/product/:id', async (req, res) => {
+        app.get('/product/:id',varifyJwt, async (req, res) => {
             const id = req.params.id
             const query = {_id: ObjectId(id)}
             const result = await productsDb.findOne(query,)
             res.send(result)
         })
-        
+        // order bookings 
+        app.post('/orders', varifyJwt, async (req, res) => {
+            const order = req.body;
+            const result = await ordersDb.insertOne(order);
+            res.send(result)
+        })
 
      }
      finally{}
