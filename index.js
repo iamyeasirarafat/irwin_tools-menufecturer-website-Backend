@@ -80,7 +80,13 @@ const varifyJwt = (req, res, next) => {
             const result = await ordersDb.insertOne(order);
             res.send(result)
         })
-
+        //get orders by email
+        app.get('/orders', varifyJwt, async (req, res) => {
+            const email = req.decoded.email;
+            const query = {clientEmail:email}
+            const result = await ordersDb.find(query).toArray()
+            res.send(result)
+        })
      }
      finally{}
  }
