@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const { ObjectID } = require('bson');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+
 
 
 const app = express();
@@ -46,7 +46,13 @@ app.use(express.json());
             const products = await productsDb.find().toArray()
             res.send(products)
         })
-
+        // get a single product
+        app.get('/product/:id', async (req, res) => {
+            const id = req.params.id
+            const query = {_id: ObjectId(id)}
+            const result = await productsDb.findOne(query,)
+            res.send(result)
+        })
         
 
      }
