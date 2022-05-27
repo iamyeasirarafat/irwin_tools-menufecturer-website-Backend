@@ -1,8 +1,11 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { ObjectID } = require('bson');
+
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -18,12 +21,33 @@ app.use(express.json());
      try{
          await client.connect();
          const productsDb = client.db("irwinTools").collection('productsDb')
+         const usersDb = client.db("irwinTools").collection('usersDb')
 
+
+         //login and sign jwt token
+         app.put('/login',async (req, res) => {
+             const email = req.query.email;
+             const filter = {email:email};
+             const options = { upsert: true };
+             const user = {email:email}
+             const update = {
+                $set: user
+              };
+              const result = await usersDb.updateOne(filter, update, options);
+              
+              if(result.acknowledged){
+               const token = jwt.sign({email:email}, process.env.jwt_secret, { expiresIn: '1h' }) 
+               res.send({result:result, token:token})
+              }
+
+         })
         // get all the products
         app.get('/', async (req, res) => {
             const products = await productsDb.find().toArray()
             res.send(products)
         })
+
+        
 
      }
      finally{}
