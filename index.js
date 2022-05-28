@@ -89,6 +89,18 @@ const varifyJwt = (req, res, next) => {
             const result = await ordersDb.find(query).toArray()
             res.send(result)
         })
+        // get all orders 
+        app.get('/allorders', varifyJwt, async (req, res) => {
+            const email = req.decoded.email;
+            const requester = await usersDb.findOne({email:email})
+            if(requester.role === 'admin'){
+                const result = await ordersDb.find().toArray()
+                res.send(result)
+            }else{
+                res.status(403).send({message:'forbidden'})
+            }
+           
+        })
         // delete order by id 
         app.delete('/order/:id', varifyJwt, async (req, res) =>{
             const id = req.params.id
