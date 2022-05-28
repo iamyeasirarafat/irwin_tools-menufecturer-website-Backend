@@ -159,10 +159,8 @@ const varifyJwt = (req, res, next) => {
                 const options = { upsert: true };
                 const updateDoc = {
                     $set: {
-                      user: {
-                          role: 'admin'
-                      }
-                    },
+                       role: 'admin'
+                     },
                   };
                   const result = await usersDb.updateOne(filter, updateDoc, options);
                 res.send(result)
