@@ -43,6 +43,7 @@ const varifyJwt = (req, res, next) => {
          const productsDb = client.db("irwinTools").collection('productsDb')
          const usersDb = client.db("irwinTools").collection('usersDb')
          const ordersDb = client.db("irwinTools").collection('ordersDb')
+         const reviewDb = client.db("irwinTools").collection('reviewDb')
 
 
          //login and sign jwt token
@@ -93,6 +94,12 @@ const varifyJwt = (req, res, next) => {
             const query = {_id: ObjectId(id)};
             const result = await ordersDb.deleteOne(query);
             res.send(result);
+        })
+        //add a review 
+        app.post('/review', varifyJwt, async (req, res)=>{
+            const review = req.body;
+            const result = await reviewDb.insertOne(review);
+            res.send(result)
         })
      }
      finally{}
