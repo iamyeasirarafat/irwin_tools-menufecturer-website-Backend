@@ -81,6 +81,19 @@ const varifyJwt = (req, res, next) => {
                 res.status(403).send({message:'forbidden'})
             }
         })
+         // delete product by id 
+         app.delete('/product/:id', varifyJwt, async (req, res) =>{
+            const email = req.decoded.email;
+            const requester = await usersDb.findOne({email:email})
+            if(requester.role === 'admin'){
+                const id = req.params.id
+                const query = {_id: ObjectId(id)};
+                const result = await productsDb.deleteOne(query);
+                res.send(result);
+            }else{
+                res.status(403).send({message:'forbidden'})
+            }
+        })
         // get a single product
         app.get('/product/:id',varifyJwt, async (req, res) => {
             const id = req.params.id
