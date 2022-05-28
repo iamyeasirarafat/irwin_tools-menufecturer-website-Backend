@@ -149,6 +149,27 @@ const varifyJwt = (req, res, next) => {
             }
            
         })
+        // admin role 
+        app.put('/user/:id', varifyJwt, async (req, res) => {
+            const email = req.decoded.email;
+            const requester = await usersDb.findOne({email:email})
+            if(requester.role === 'admin'){
+                const id = req.params.id;
+                const filter = {_id:ObjectId(id)};
+                const options = { upsert: true };
+                const updateDoc = {
+                    $set: {
+                      user: {
+                          role: 'admin'
+                      }
+                    },
+                  };
+                  const result = await usersDb.updateOne(filter, updateDoc, options);
+                res.send(result)
+            }else{
+                res.status(403).send({message:'forbidden'})
+            }
+        })
      
      }
      finally{}
