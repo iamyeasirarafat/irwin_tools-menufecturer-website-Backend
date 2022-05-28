@@ -87,6 +87,13 @@ const varifyJwt = (req, res, next) => {
             const result = await ordersDb.find(query).toArray()
             res.send(result)
         })
+        // delete order by id 
+        app.delete('/order/:id', varifyJwt, async (req, res) =>{
+            const id = req.params.id
+            const query = {_id: ObjectId(id)};
+            const result = await ordersDb.deleteOne(query);
+            res.send(result);
+        })
      }
      finally{}
  }
