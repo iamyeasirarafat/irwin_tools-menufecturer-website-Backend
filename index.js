@@ -101,6 +101,11 @@ const varifyJwt = (req, res, next) => {
             const result = await reviewDb.insertOne(review);
             res.send(result)
         })
+        //get all review 
+        app.get('/reviews',  async (req, res)=>{
+            const result = await reviewDb.find().toArray();
+            res.send(result);
+        })
      }
      finally{}
  }
