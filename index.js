@@ -137,6 +137,18 @@ const varifyJwt = (req, res, next) => {
             const result = await usersDb.findOne(filter);
             res.send(result)
         })
+         // get all users 
+         app.get('/users', varifyJwt, async (req, res) => {
+            const email = req.decoded.email;
+            const requester = await usersDb.findOne({email:email})
+            if(requester.role === 'admin'){
+                const result = await usersDb.find().toArray()
+                res.send(result)
+            }else{
+                res.status(403).send({message:'forbidden'})
+            }
+           
+        })
      
      }
      finally{}
