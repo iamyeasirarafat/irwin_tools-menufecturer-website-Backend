@@ -69,6 +69,18 @@ const varifyJwt = (req, res, next) => {
             const products = await productsDb.find().toArray()
             res.send(products)
         })
+        // add a new Product  
+        app.post('/',varifyJwt, async (req, res) => {
+            const email = req.decoded.email;
+            const requester = await usersDb.findOne({email:email})
+            if(requester.role === 'admin'){
+                const product = req.body;
+                const result = await productsDb.insertOne(product);
+                res.send(result)
+            }else{
+                res.status(403).send({message:'forbidden'})
+            }
+        })
         // get a single product
         app.get('/product/:id',varifyJwt, async (req, res) => {
             const id = req.params.id
