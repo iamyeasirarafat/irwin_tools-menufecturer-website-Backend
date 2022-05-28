@@ -22,6 +22,7 @@ const varifyJwt = (req, res, next) => {
         const token = header.split(' ')[1];
         jwt.verify(token, process.env.jwt_secret, function(err, decoded) {
             if(err){
+                console.log(err);
                 res.status(403).send('forbidden')
             }else{
                 req.decoded = decoded;
@@ -106,6 +107,25 @@ const varifyJwt = (req, res, next) => {
             const result = await reviewDb.find().toArray();
             res.send(result);
         })
+           // update profile
+           app.put('/profile',varifyJwt, async (req, res)=>{
+            const user = req.body;
+            const email = user.email
+            const filter = {email:email};
+            const update = {
+                $set: user
+              };
+              const result = await usersDb.updateOne(filter, update);
+              res.send(result)
+        })
+        //get user profile
+        app.get('/profile',varifyJwt, async (req, res)=>{
+            const email = req.decoded.email;
+            const filter = {email:email};
+            const result = await usersDb.findOne(filter);
+            res.send(result)
+        })
+     
      }
      finally{}
  }
